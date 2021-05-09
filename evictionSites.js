@@ -32,9 +32,12 @@ mappa.on('load', function(){
         'id': 'hydrants',
         'type': 'circle',
         'source': 'hydrants',
+        'layout': {
+            'visibility': 'none'
+        },
         'paint': {
-        'circle-color': 'blue',
-        'circle-radius': 2,
+            'circle-color': 'blue',
+            'circle-radius': 2,
         }
     });
 
@@ -44,10 +47,13 @@ mappa.on('load', function(){
         'type': 'circle',
         'source': 'evictions',
         'paint': {
-        'circle-color': 'red',
-        'circle-radius': 4,
-        'circle-opacity': 0.5,
-        }
+            'circle-color': 'red',
+            'circle-radius': 4,
+            'circle-opacity': 0.5,
+        },
+        'layout': {
+            'visibility': 'none'
+        },
     });
 
     // Create a popup, but don't add it to the map yet.
@@ -65,19 +71,16 @@ mappa.on('load', function(){
 
         var coordinates = e.features[0].geometry.coordinates.slice();
 
-        var lotnr = e.features[0].properties.lotnr;
-        var pic1 = e.features[0].properties.pic1;
-        var description = e.features[0].properties.description;
-        var streetview = e.features[0].properties.streetview;
+        var courtidxnum = e.features[0].properties.courtidxnum;
+        var rescomm = e.features[0].properties.rescomm;
+        var evicposs = e.features[0].properties.evicposs;
+        var borough = e.features[0].properties.borough;
 
 
-        var d_name = "<h2 style='color:red;'>" + name + "</h2>";
-        var d_occupation = "<div>occupation: " + occupation + "</div>";
-        var d_description = "<div>description: " + description + "</div>";
         var d_coordinates = "<div>coordinates: " + coordinates + "</div>";
-        var d_pic1 = "<img src=/assets/communityGardens/" + pic1 + " class='popupImage'>";
-        var d_streetview = "<a target='_blank' href='" + streetview + "'>link to streetview</a>";
-        var d_lotnr = "<div>lotnr: " + lotnr + "</div>";
+        var d_courtidxnum = "<div>Court Index Number: " + courtidxnum + "</div>";
+        var d_rescomm = "<div>Residential/Commercial: " + rescomm + "</div>";
+        var d_evicposs = "<div>Eviction / Legal Possession: " + evicposs + "</div>";
 
         // Ensure that if the map is zoomed out such that multiple
         // copies of the feature are visible, the popup appears
@@ -88,13 +91,11 @@ mappa.on('load', function(){
 
         // Populate the popup and set its coordinates
         // based on the feature found.
-        popup.setLngLat(coordinates).setHTML(d_pic1+
-                                             d_name+
+        popup.setLngLat(coordinates).setHTML(
                                              d_coordinates+
-                                             d_lotnr+
-                                             d_occupation+
-                                             d_description+
-                                             d_streetview
+                                             d_courtidxnum+
+                                             d_rescomm+
+                                             d_evicposs
                                              ).addTo(mappa);
     });
 
@@ -202,7 +203,7 @@ mappa.on('load', function(){
                     link.id = id;
                     link.href = '#';
                     link.textContent = id;
-                    link.className = 'active';
+                    link.className = '';
                     // Show or hide layer when the toggle is clicked.
                     link.onclick = function (e) {
                         var clickedLayer = this.textContent;
