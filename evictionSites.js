@@ -5,12 +5,16 @@
 //
 let evictions;
 let hydrants;
+let pops;
+let telephones;
+let vacantlotgarden;
 
 function setup(){
 
     evictions = loadJSON('/data/nyc_evictions_2019-2020.json');
-    hydrants = loadJSON('/data/nyc_hydrants.json');
-
+    hydrants = loadJSON('/data/nyc_hydrants.json'); pops =loadJSON('/data/nyc_pops.json');
+    telephones = loadJSON('/data/nyc_public_telephones.json');
+    vacantlotgarden=loadJSON('/data/nyc_vacant_lot_garden.json');
 }
 
 
@@ -56,6 +60,21 @@ mappa.on('load', function(){
         },
     });
 
+    mappa.addSource('pops', pops );
+    mappa.addLayer({
+        'id': 'pops',
+        'type': 'circle',
+        'source': 'pops',
+        'paint': {
+            'circle-color': 'lightgrey',
+            'circle-radius': 3,
+            'circle-opacity': 0.5,
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+    });
+
     // Create a popup, but don't add it to the map yet.
     var popup = new mapboxgl.Popup({
         className: "eviction-popup",
@@ -77,6 +96,7 @@ mappa.on('load', function(){
         var borough = e.features[0].properties.borough;
 
 
+        var d_title = "<h2 style='color:red;'>"+"Eviction"+"</h2>";
         var d_coordinates = "<div>coordinates: " + coordinates + "</div>";
         var d_courtidxnum = "<div>Court Index Number: " + courtidxnum + "</div>";
         var d_rescomm = "<div>Residential/Commercial: " + rescomm + "</div>";
@@ -91,7 +111,7 @@ mappa.on('load', function(){
 
         // Populate the popup and set its coordinates
         // based on the feature found.
-        popup.setLngLat(coordinates).setHTML(
+        popup.setLngLat(coordinates).setHTML(d_title+
                                              d_coordinates+
                                              d_courtidxnum+
                                              d_rescomm+
@@ -136,32 +156,20 @@ mappa.on('load', function(){
         return finalstr;
     }
 
-    // emptyLots
-    mappa.on('mouseenter', 'emptyLots', function (e) {
+
+
+    // pops
+    mappa.on('mouseenter', 'pops', function (e) {
         // Change the cursor style as a UI indicator.
         mappa.getCanvas().style.cursor = 'pointer';
 
-        console.log(e.features[0]);
 
         var coordinates = e.features[0].geometry.coordinates.slice();
-        var name = e.features[0].properties.name;
-        var occupation = e.features[0].properties.occupation;
-
-        var lotnr = e.features[0].properties.lotnr;
-        var pic1 = e.features[0].properties.pic1;
-        var description = e.features[0].properties.description;
-        var streetview = e.features[0].properties.streetview;
-
-        description = addNewLines(description);
+        var name = e.features[0].properties.facname;
 
 
-        var d_name = "<h2 style='color:blue;'>" + "Empty Lot" + "</h2>";
-        var d_occupation = "<div>occupation: " + occupation + "</div>";
-        var d_description = "<div>description: <br> " + description + "</div>";
-        var d_coordinates = "<div>coordinates: " + coordinates + "</div>";
-        var d_pic1 = "<img src=/assets/emptyLots/" + pic1 + " class='popupImage'>";
-        var d_streetview = "<a target='_blank' href='" + streetview + "'>link to streetview</a>";
-        var d_lotnr = "<div>lotnr: " + lotnr + "</div>";
+        var d_title = "<h3 style='color:lightgrey;'>" + "P.O.P.S." + "</h3>";
+        var d_name = "<div>" + name + "</div>";
 
         // Ensure that if the map is zoomed out such that multiple
         // copies of the feature are visible, the popup appears
@@ -172,13 +180,8 @@ mappa.on('load', function(){
 
         // Populate the popup and set its coordinates
         // based on the feature found.
-        popup.setLngLat(coordinates).setHTML(d_pic1+
-                                             d_name+
-                                             d_coordinates+
-                                             d_lotnr+
-                                             d_occupation+
-                                             d_description+
-                                             d_streetview
+        popup.setLngLat(coordinates).setHTML( d_title +
+                                              d_name
                                              ).addTo(mappa);
     });
 
@@ -191,9 +194,9 @@ mappa.on('load', function(){
     mappa.on('idle', function () {
         // If these two layers have been added to the style,
         // add the toggle buttons.
-        if (mappa.getLayer('evictions') && mappa.getLayer('hydrants')) {
+        if (mappa.getLayer('evictions') && mappa.getLayer('hydrants') && mappa.getLayer('pops')) {
             // Enumerate ids of the layers.
-            var toggleableLayerIds = ['evictions', 'hydrants'];
+            var toggleableLayerIds = ['evictions', 'hydrants', 'pops'];
             // Set up the corresponding toggle button for each layer.
             for (var i = 0; i < toggleableLayerIds.length; i++) {
                 var id = toggleableLayerIds[i];
