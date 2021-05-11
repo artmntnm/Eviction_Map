@@ -75,6 +75,38 @@ mappa.on('load', function(){
         },
     });
 
+    mappa.addSource('telephones', telephones );
+    mappa.addLayer({
+        'id': 'telephones',
+        'type': 'circle',
+        'source': 'telephones',
+        'paint': {
+            'circle-color': 'yellow',
+            'circle-radius': 2,
+            'circle-opacity': 0.7,
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+    });
+
+    mappa.addSource('vacantlotgarden', vacantlotgarden );
+    mappa.addLayer({
+        'id': 'vacantlotgarden',
+        'type': 'circle',
+        'source': 'vacantlotgarden',
+        'paint': {
+            'circle-color': 'green',
+            'circle-radius': 4,
+            'circle-opacity': 1,
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+    });
+
+
+
     // Create a popup, but don't add it to the map yet.
     var popup = new mapboxgl.Popup({
         className: "eviction-popup",
@@ -185,6 +217,45 @@ mappa.on('load', function(){
                                              ).addTo(mappa);
     });
 
+    // lotgarden
+    mappa.on('mouseenter', 'vacantlotgarden', function (e) {
+        // Change the cursor style as a UI indicator.
+        mappa.getCanvas().style.cursor = 'pointer';
+
+
+        var coordinates = e.features[0].geometry.coordinates.slice();
+
+        var name = e.features[0].properties.name;
+
+        var owner = e.features[0].properties.owner;
+
+        var owner_type = e.features[0].properties.owner_type;
+
+
+        var d_title = "<h3 style='color:green;'>" + "Lots and Gardens" + "</h3>";
+        var d_name = "<div>" + name + "</div>";
+        var d_owner = "<div>" + owner + "</div>";
+        var d_owner_type = "<div>" + owner_type + "</div>";
+
+
+
+        // Ensure that if the map is zoomed out such that multiple
+        // copies of the feature are visible, the popup appears
+        // over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+            coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+
+        // Populate the popup and set its coordinates
+        // based on the feature found.
+        popup.setLngLat(coordinates).setHTML( d_title +
+                                              d_name +
+                                              d_owner +
+                                              d_owner_type
+                                             ).addTo(mappa);
+    });
+
+
     mappa.on('mouseleave', 'emptyLots', function () {
         mappa.getCanvas().style.cursor = '';
         //popup.remove();
@@ -194,9 +265,9 @@ mappa.on('load', function(){
     mappa.on('idle', function () {
         // If these two layers have been added to the style,
         // add the toggle buttons.
-        if (mappa.getLayer('evictions') && mappa.getLayer('hydrants') && mappa.getLayer('pops')) {
+        if (mappa.getLayer('evictions') && mappa.getLayer('hydrants') && mappa.getLayer('pops')&& mappa.getLayer('telephones') && mappa.getLayer('vacantlotgarden')) {
             // Enumerate ids of the layers.
-            var toggleableLayerIds = ['evictions', 'hydrants', 'pops'];
+            var toggleableLayerIds = ['evictions', 'hydrants', 'pops', 'telephones', 'vacantlotgarden'];
             // Set up the corresponding toggle button for each layer.
             for (var i = 0; i < toggleableLayerIds.length; i++) {
                 var id = toggleableLayerIds[i];
